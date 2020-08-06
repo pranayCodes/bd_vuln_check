@@ -10,9 +10,10 @@ Use the requirements file to install dependencies using:
 What can the script do right now? 
 
 - Goes through the BOM
-- Identifies CentOS/ RedHat Origins
-- Queries Redhat, checks for "Not Affected" origins
+- Identifies CentOS/ RedHat origins
+- Queries Redhat, checks for "Not Affected" origins for Enterprise Linux 7
 - If things are not affected, marks them as "Ignored" on the BOM
+- Provide additional link to RHSA json for access to raw data in the description
 
 Sample Command:
 python3 vuln_ignore.py --instance <host> --token <token_from_bd> --project <project_uuid_on_bd> --version <version_uuid_on_bd>
