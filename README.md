@@ -16,4 +16,5 @@ What can the script do right now?
 - Provide additional link to RHSA json for access to raw data in the description
 
 Sample Command:
-python3 vuln_ignore.py --instance <host> --token <token_from_bd> --project <project_uuid_on_bd> --version <version_uuid_on_bd>
+
+vuln_ignore.py --instance <host> --token <token_from_bd> --project <project_uuid_on_bd> --version <version_uuid_on_bd>
