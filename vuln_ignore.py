@@ -57,7 +57,7 @@ def update_hub_vuln(args, bearer_token, component_id, version_id, origin_id, cve
     url = project_version + origin_vuln
     ignore = False
     
-    comment = '/'
+    comment = ' / '
 
     if message[0] == 'Not affected':
         ignore = True
@@ -80,34 +80,52 @@ def update_hub_vuln(args, bearer_token, component_id, version_id, origin_id, cve
 
     return ret
 
+def get_el_version(componentVersionOriginId):
+
+    #identify if component is from el7/ el8 release
+    el_version = re.findall(r'el[0-9]',componentVersionOriginId)
+
+    if 'el7' in el_version:
+        return 'Red Hat Enterprise Linux 7'
+    elif 'el8' in el_version:
+        return 'Red Hat Enterprise Linux 8'
+    elif 'el6' in el_version:
+        return 'Red Hat Enterprise Linux 6'
+
 def get_rhsa_opinion(cve_id, componentVersionOriginId):
     #return print_msg_box(cve_id + "  -->  " + componentVersionOriginId)
     
+    redhat_errata = 'https://access.redhat.com/security/cve/'+ cve_id + '.json'
+
     redhat_api = 'https://access.redhat.com/hydra/rest/securitydata/cve/' + cve_id + '.json'
     redhat_resp = requests.get(redhat_api, headers={}, verify=False).json()
     fix_state = ''
+
+    el_version = get_el_version(componentVersionOriginId)
+    
     if "affected_release" in redhat_resp.keys():
         for item in redhat_resp['affected_release']:
-            if item['product_name'] == "Red Hat Enterprise Linux 7":
+            if item['product_name'] == el_version:
                 pkg_name = item['package'].split('-')[0]
                 if pkg_name in componentVersionOriginId:
-                    fix_state = 'released'
+                    fix_state = 'Released'
                     break
     
     if "package_state" in redhat_resp.keys():
         for item in redhat_resp['package_state']:
-            if item['product_name'] == "Red Hat Enterprise Linux 7":
+            if item['product_name'] == el_version:
                 pkg_name = re.split(r'(-|/)',componentVersionOriginId)[0]
                 if pkg_name in item['package_name'] or item['package_name'] in pkg_name:
                     fix_state = item['fix_state']
                     break
                 else:
-                    fix_state = 'uncertain'
+                    fix_state = 'Uncertain'
+            else:
+                fix_state = "Not Listed"
     else: 
-        fix_state = "not found"
-    #print(r['componentVersionOriginId'] + ',' + r['vulnerabilityWithRemediation']['vulnerabilityName'] + ',' + fix_state)
-    
-    return (fix_state, redhat_api) 
+        fix_state = "Not Listed"
+
+    return (fix_state, redhat_errata) 
 
 def find_components(args, bearer_token):
     count = 0
@@ -126,7 +144,7 @@ def find_components(args, bearer_token):
                     component_id=i['href'].split('/')[4:6][1]
                     version_id=i['href'].split('/')[7:9][0]
                     origin_id=i['href'].split('/')[9:10][0]
-                    
+
                     message = get_rhsa_opinion(cve_id, componentVersionOriginId)
                     state = update_hub_vuln(args, bearer_token, component_id, version_id, origin_id, cve_id, message)
                     
