@@ -11,7 +11,7 @@ What can the script do right now?
 
 - Goes through the BOM
 - Identifies CentOS/ RedHat origins
-- Queries Redhat, checks for "Not Affected" origins for Enterprise Linux 7
+- Queries Redhat, checks for "Not Affected" origins for Enterprise Linux 6/7/8
 - If things are not affected, marks them as "Ignored" on the BOM
 - Provide additional link to RHSA json for access to raw data in the description
 
